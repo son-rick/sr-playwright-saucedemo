@@ -1,4 +1,6 @@
 import { defineConfig, devices } from '@playwright/test';
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 export default defineConfig({
   testDir: './tests',
@@ -9,23 +11,52 @@ export default defineConfig({
   reporter: 'html',
   use: {
     trace: 'on-first-retry',
-    baseURL: process.env.BASE_URL
-  },
+    headless: false,  // rodar sem interface
+    baseURL: process.env.BASE_URL  // define base URL
+  },  
 
   projects: [
     {
+      name: 'setup',
+      testMatch: /.*\.setup\.ts/
+    },
+    {
+      name: 'no-auth',
+      use: {
+        ...devices['Desktop Chrome'],
+        storageState: undefined
+      },
+      testMatch: /.*login\.spec\.ts/
+    },
+
+    {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      dependencies: ['setup'],
+      use: {
+        ...devices['Desktop Chrome'],
+        storageState: 'storage/storageState.json'
+      },
+      testIgnore: /.*login\.spec\.ts/
     },
 
     {
       name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
+      dependencies: ['setup'],
+      use: {
+        ...devices['Desktop Firefox'],
+        storageState: 'storage/storageState.json'
+      },
+      testIgnore: /.*login\.spec\.ts/
     },
 
     {
       name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
-    },
+      dependencies: ['setup'],
+      use: {
+        ...devices['Desktop Safari'],
+        storageState: 'storage/storageState.json'
+      },
+      testIgnore: /.*login\.spec\.ts/
+    }
   ],
 });
