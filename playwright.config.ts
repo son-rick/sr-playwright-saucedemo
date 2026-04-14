@@ -11,7 +11,7 @@ export default defineConfig({
   reporter: 'html',
   use: {
     trace: 'on-first-retry',
-    headless: false,  // rodar sem interface
+    headless: process.env.CI ? true : false,
     baseURL: process.env.BASE_URL  // define base URL
   },  
 
